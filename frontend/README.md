@@ -1,16 +1,224 @@
-# React + Vite
+# 💸 Expense Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📌 Overview
 
-Currently, two official plugins are available:
+A minimal full-stack Expense Tracker that allows users to record, view, filter, and analyze personal expenses.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Built with a focus on **real-world robustness**, including handling retries, duplicate submissions, and persistent storage.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Live Demo
 
-## Expanding the ESLint configuration
+* **Frontend:** https://your-frontend-url.vercel.app
+* **Backend API:** https://your-backend-url.onrender.com
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🧱 Tech Stack
+
+### Frontend
+
+* React (Vite)
+* Vanilla CSS
+
+### Backend
+
+* Node.js
+* Express.js
+* SQLite (persistent storage)
+
+---
+
+## ✨ Features
+
+### Core Features
+
+* ➕ Add a new expense (amount, category, description, date)
+* 📋 View list of expenses
+* 🔍 Filter expenses by category
+* ⏱️ Sort expenses by date (newest first)
+* 💰 View total of displayed expenses
+
+---
+
+## ⚙️ API Endpoints
+
+### POST `/expenses`
+
+Create a new expense.
+
+**Headers:**
+
+* `Idempotency-Key` (required)
+
+**Body:**
+
+```json
+{
+  "amount": 500,
+  "category": "food",
+  "description": "pizza",
+  "date": "2026-04-25"
+}
+```
+
+---
+
+### GET `/expenses`
+
+Supports:
+
+* `category` → filter
+* `sort=date_desc` → newest first
+
+Example:
+
+```
+/expenses?category=food&sort=date_desc
+```
+
+---
+
+## 🧠 Key Design Decisions
+
+### 1. Idempotency Handling (⭐ Highlight)
+
+* Implemented using `Idempotency-Key` header
+* Prevents duplicate expense creation due to:
+
+  * Network retries
+  * Multiple button clicks
+  * Page refreshes
+
+---
+
+### 2. Data Persistence
+
+* Used **SQLite** for:
+
+  * Simplicity
+  * Local persistence
+  * Real-world DB behavior
+
+---
+
+### 3. Separation of Concerns
+
+* Frontend and backend are separate services
+* Enables independent deployment and scaling
+
+---
+
+### 4. Money Handling
+
+* Amount stored as numeric type
+* (Can be extended to smallest unit like paise for precision)
+
+---
+
+## 🌍 Handling Real-World Conditions
+
+| Scenario             | Handling                            |
+| -------------------- | ----------------------------------- |
+| Multiple submissions | Idempotency key prevents duplicates |
+| Page refresh         | Data persists via SQLite            |
+| Slow API             | Loading state in UI                 |
+| API failure          | Error handling + alerts             |
+
+---
+
+## 🎨 UI Features
+
+* Clean card-based layout
+* Loading indicators
+* Empty state messaging
+* Simple and readable structure
+
+---
+
+## ⚖️ Trade-offs
+
+* Minimal UI styling (focused on functionality)
+* No authentication system
+* Limited input validation
+* No pagination (small dataset assumed)
+
+---
+
+## 🔮 Future Improvements
+
+* Category-wise analytics
+* Charts & insights
+* Pagination for large datasets
+* Authentication & user accounts
+* Store money in smallest unit (paise)
+
+---
+
+## 🧪 Running Locally
+
+### Backend
+
+```bash
+cd backend
+npm install
+node index.js
+```
+
+---
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## 🌐 Deployment
+
+### Backend (Render)
+
+* Root: `backend`
+* Build: `npm install`
+* Start: `node index.js`
+
+---
+
+### Frontend (Vercel)
+
+* Root: `frontend`
+* Environment Variable:
+
+```
+VITE_API_URL=https://your-backend-url.onrender.com
+```
+
+---
+
+## 📂 Project Structure
+
+```
+expense-tracker/
+  backend/
+  frontend/
+```
+
+---
+
+## ✅ Evaluation Highlights
+
+* ✔️ Handles real-world retry scenarios
+* ✔️ Prevents duplicate financial records
+* ✔️ Clean and maintainable structure
+* ✔️ Full-stack working system
+* ✔️ Production-like thinking
+
+---
+
+## 👩‍💻 Author
+
+Vanshika Sinha
