@@ -8,13 +8,12 @@ app.use(cors());
 app.use(express.json());
 
 /**
- * POST /expenses
+ * POST /expenses (idempotent)
  */
 app.post("/expenses", (req, res) => {
   const { amount, category, description, date } = req.body;
   const idempotencyKey = req.headers["idempotency-key"];
 
-  // Basic validation
   if (!amount || amount <= 0 || !date) {
     return res.status(400).json({ error: "Invalid input" });
   }
@@ -23,21 +22,16 @@ app.post("/expenses", (req, res) => {
     return res.status(400).json({ error: "Missing Idempotency-Key" });
   }
 
-  // 🔍 Check if request already processed
   db.get(
     "SELECT * FROM expenses WHERE idempotency_key = ?",
     [idempotencyKey],
     (err, existing) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+      if (err) return res.status(500).json({ error: err.message });
 
-      // ✅ If duplicate → return same response
       if (existing) {
-        return res.json(existing);
+        return res.json(existing); // prevent duplicate
       }
 
-      // 🆕 Create new expense
       const id = uuidv4();
       const created_at = new Date().toISOString();
 
@@ -47,11 +41,9 @@ app.post("/expenses", (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [id, amount, category, description, date, created_at, idempotencyKey],
         function (err) {
-          if (err) {
-            return res.status(500).json({ error: err.message });
-          }
+          if (err) return res.status(500).json({ error: err.message });
 
-          return res.json({
+          res.json({
             id,
             amount,
             category,
@@ -66,11 +58,9 @@ app.post("/expenses", (req, res) => {
 });
 
 /**
- * GET /expenses
+ * GET /expenses (filter + sort)
  */
 app.get("/expenses", (req, res) => {
-  console.log("GET HIT");
-
   const { category, sort } = req.query;
 
   let query = "SELECT * FROM expenses";
@@ -86,34 +76,23 @@ app.get("/expenses", (req, res) => {
   }
 
   db.all(query, params, (err, rows) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: err.message });
-    }
-
+    if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
-});
-
-
-/**
- * Root route
- */
-app.get("/", (req, res) => {
-  res.send("API working");
 });
 
 /**
  * Health check
  */
-/**
- * GET /expenses
- */
+app.get("/", (req, res) => {
+  res.send("API working");
+});
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// keep process alive (fix nodemon exit issue)
+// keep process alive (fix for nodemon exit)
 setInterval(() => {}, 1000);
