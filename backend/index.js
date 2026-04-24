@@ -66,12 +66,54 @@ app.post("/expenses", (req, res) => {
 });
 
 /**
- * Health check
+ * GET /expenses
  */
-app.get("/", (req, res) => {
-  res.send("API running");
+app.get("/expenses", (req, res) => {
+  console.log("GET HIT");
+
+  const { category, sort } = req.query;
+
+  let query = "SELECT * FROM expenses";
+  let params = [];
+
+  if (category) {
+    query += " WHERE category = ?";
+    params.push(category);
+  }
+
+  if (sort === "date_desc") {
+    query += " ORDER BY date DESC";
+  }
+
+  db.all(query, params, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.json(rows);
+  });
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+
+/**
+ * Root route
+ */
+app.get("/", (req, res) => {
+  res.send("API working");
 });
+
+/**
+ * Health check
+ */
+/**
+ * GET /expenses
+ */
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// keep process alive (fix nodemon exit issue)
+setInterval(() => {}, 1000);
